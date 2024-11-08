@@ -1,0 +1,23 @@
+DATABASE DESIGN
+Here’s a breakdown of the tables and their relationships:
+
+user: Stores user information, including role, name, contact details, and timestamps for registration and login.
+
+task: Contains details of tasks, such as title, description, status, planned and actual start/end dates, and content. Each task has a userId indicating the user it's assigned to and fields for tracking creation and updates.
+
+activity: Represents activities within tasks, tracking similar fields to the task table (title, description, status, dates, etc.), but allowing activities to be associated with specific tasks via taskId.
+
+comment: Used to store comments linked to either a task or an activity, with fields for title, creation and update timestamps, and content.
+
+tag: Defines tags that can be used to categorize or label tasks. It includes fields like title and slug.
+
+task_tag: Serves as a many-to-many relationship table between tasks and tags, linking them through taskId and tagId.
+
+task_meta: Provides additional metadata for tasks, with fields key and content to store specific key-value pairs related to a task.
+
+Relationships:
+user-task/activity: One-to-many, as a user can create multiple tasks or activities.
+task-activity: One-to-many, as each task can have multiple activities.
+task-comment and activity-comment: One-to-many, as tasks and activities can have multiple comments.
+task-tag: Many-to-many, allowing tasks to have multiple tags and tags to be associated with multiple tasks.
+This schema allows for a structured, relational approach to managing tasks, activities, comments, and tags.
