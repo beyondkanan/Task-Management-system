@@ -1,0 +1,167 @@
+Project Overview
+
+The Task Management System is designed to allow users to create and manage tasks, organize them using tags, log activities associated with each task, and leave comments on tasks and activities. This project will be built with Java for the backend logic, MySQL as the relational database, JPA (Java Persistence API) for ORM (Object-Relational Mapping), and Hibernate as the JPA provider.
+
+This system is suitable for project management applications where users need to track task progress, delegate responsibilities, and record detailed histories of task activities and modifications.
+
+_______________________________________________________________________________________________________________________________________________________________________
+
+
+Entity Descriptions and Relationships
+
+User Entity (user table)
+
+Description: Represents a user in the system who can create, update, and comment on tasks.
+Fields:
+id (Primary Key): Unique identifier for each user.
+roleId: Represents the user's role (e.g., admin, manager, regular user).
+firstName, middleName, lastName: Stores the user’s name.
+username: Unique username for login.
+mobile, email: Contact details.
+passwordHash: Password stored as a hash for security.
+registeredAt, lastLogin: Timestamps for registration and last login.
+intro, profile: Optional user bio and profile content.
+Relationships:
+@OneToMany with Task: A user can create multiple tasks.
+@OneToMany with Activity: A user can log multiple activities.
+@OneToMany with Comment: A user can comment on multiple tasks or activities.
+This entity manages user credentials, profile information, and roles.
+
+Task Entity (task table)
+
+Description: Represents tasks that users can create, update, and monitor. Each task has detailed information, status, estimated hours, and timestamps.
+Fields:
+id (Primary Key): Unique identifier for each task.
+userId: ID of the user assigned to the task.
+createdBy, updatedBy: References to the users who created and last updated the task.
+title, description: Basic details about the task.
+status: Status of the task (e.g., pending, completed).
+hours: Number of hours estimated for the task.
+createdAt, updatedAt: Timestamps for creation and last update.
+plannedStartDate, plannedEndDate, actualStartDate, actualEndDate: Planning and tracking dates for the task lifecycle.
+content: Additional content or notes related to the task.
+Relationships:
+@ManyToOne with User: A task is created and assigned by a user.
+@OneToMany with Activity: A task can have multiple related activities.
+@OneToMany with Comment: A task can have multiple comments.
+@ManyToMany with Tag via TaskTag: A task can be tagged with multiple tags for organization.
+The task entity is central to the system, providing details and tracking progress. The task’s status, hours, and timestamps offer insights into task performance and timeline.
+
+Tag Entity (tag table)
+
+Description: Represents tags used to categorize or label tasks.
+Fields:
+id (Primary Key): Unique identifier for each tag.
+title: The name or label of the tag.
+slug: A unique, URL-friendly identifier for the tag.
+Relationships:
+@ManyToMany with Task via TaskTag: Tags can be associated with multiple tasks.
+Tags help in categorizing and filtering tasks based on different labels or keywords.
+
+TaskTag Entity (task_tag table)
+
+Description: Represents the many-to-many relationship between Task and Tag.
+Fields:
+taskId, tagId: Foreign keys that link tasks with tags.
+Relationships:
+@ManyToOne with Task and Tag: Acts as a join table for tasks and tags.
+This join table enables each task to have multiple tags, and each tag to be assigned to multiple tasks.
+
+TaskMeta Entity (task_meta table)
+
+Description: Stores additional metadata for tasks, allowing tasks to have custom fields and properties.
+Fields:
+id (Primary Key): Unique identifier for each task meta entry.
+taskId: Foreign key linking to the associated task.
+key: Metadata key (e.g., "priority", "deadline").
+content: Metadata value.
+Relationships:
+@ManyToOne with Task: Each metadata entry belongs to a specific task.
+Task metadata provides flexibility for adding custom information fields to tasks.
+
+Activity Entity (activity table)
+
+Description: Logs specific activities or actions related to tasks. For instance, it could record when a task status changes, when a user logs time, or when a task is reassigned.
+Fields:
+id (Primary Key): Unique identifier for each activity.
+userId: ID of the user performing the activity.
+taskId: ID of the associated task.
+createdBy, updatedBy: References to the users who created and last updated the activity.
+title, description: Basic details of the activity.
+status: Activity status (e.g., in progress, completed).
+hours: Hours logged for the activity.
+createdAt, updatedAt: Timestamps for creation and last update.
+plannedStartDate, plannedEndDate, actualStartDate, actualEndDate: Activity dates for planning and tracking.
+content: Additional notes or information.
+Relationships:
+@ManyToOne with Task: An activity is related to a specific task.
+@ManyToOne with User: An activity is performed by a user.
+Activities are essential for tracking user actions and progress updates on tasks.
+
+Comment Entity (comment table)
+
+Description: Allows users to leave comments on tasks or specific activities, facilitating collaboration and communication.
+Fields:
+id (Primary Key): Unique identifier for each comment.
+taskId, activityId: Foreign keys linking the comment to a task or activity.
+userId: ID of the user who made the comment.
+title: Brief title or subject of the comment.
+createdAt, updatedAt: Timestamps for comment creation and updates.
+content: The main body of the comment.
+Relationships:
+@ManyToOne with Task: Comments can be associated with tasks.
+@ManyToOne with Activity: Comments can be associated with activities.
+@ManyToOne with User: Comments are made by users.
+Comments enhance collaboration by allowing users to discuss tasks and activities in a structured format.
+
+
+Technologies and Tools
+
+Java: Backend language for creating and managing business logic.
+Spring Boot (optional): To simplify dependency management and configuration.
+Hibernate: ORM (Object-Relational Mapping) tool for persisting data and mapping Java objects to database tables.
+JPA (Java Persistence API): Standard API used by Hibernate to map Java objects to relational tables.
+MySQL: Relational database for data storage.
+
+Example Code for JPA Entities
+java
+Copy code
+@Entity
+@Table(name = "user")
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "firstName", length = 50, nullable = false)
+    private String firstName;
+    
+    @Column(name = "lastName", length = 50, nullable = false)
+    private String lastName;
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Task> tasks;
+
+    // Other fields, getters, setters, and relationships
+}
+
+@Entity
+@Table(name = "task")
+public class Task {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "title", length = 512, nullable = false)
+    private String title;
+
+    @ManyToOne
+    @JoinColumn(name = "userId", nullable = false)
+    private User user;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Activity> activities;
+
+    // Other fields, getters, setters, and relationships
+}
+This code demonstrates how entities can be defined and related to each other, following the ER model. This approach will ensure a well-structured, maintainable, and scalable backend for the task management system.
